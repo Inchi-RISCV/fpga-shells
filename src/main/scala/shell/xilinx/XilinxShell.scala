@@ -48,6 +48,12 @@ class XDC(val name: String)
   def addIbufLowPower(io: IOPin, value: String) {
     addConstraint(s"set_property IBUF_LOW_PWR ${value} ${io.sdcPin}")
   }
+  def addCrcDisable() {
+    addConstraint(s"set_property BITSTREAM.GENERAL.CRC DISABLE [current_design]")
+  }
+  def addCompress() {
+    addConstraint(s"set_property BITSTREAM.GENERAL.COMPRESS TRUE [current_design]")
+  }
 }
 
 abstract class XilinxShell()(implicit p: Parameters) extends IOShell
