@@ -17,7 +17,7 @@ import sifive.fpgashells.ip.xilinx.xxv_ethernet._
 class SysClockVCU118PlacedOverlay(val shell: VCU118ShellBasicOverlays, name: String, val designInput: ClockInputDesignInput, val shellInput: ClockInputShellInput)
   extends LVDSClockInputXilinxPlacedOverlay(name, designInput, shellInput)
 {
-  val node = shell { ClockSourceNode(freqMHz = 250, jitterPS = 50)(ValName(name)) }
+  val node = shell { ClockSourceNode(freqMHz = 80, jitterPS = 50)(ValName(name)) }
 
   shell { InModuleBody {
     shell.xdc.addPackagePin(io.p, "Y52")         //E12   zhuzl  20240808
@@ -55,12 +55,12 @@ class SDIOVCU118PlacedOverlay(val shell: VCU118ShellBasicOverlays, name: String,
   extends SDIOXilinxPlacedOverlay(name, designInput, shellInput)
 {
   shell { InModuleBody {
-    val packagePinsWithPackageIOs = Seq(("C50", IOPin(io.spi_clk)),          //AV15    zhuzl
-                                        ("E42", IOPin(io.spi_cs)),           //AY15    zhuzl
-                                        ("F41", IOPin(io.spi_dat(0))),       //AW15    zhuzl
-                                        ("B48", IOPin(io.spi_dat(1))),       //AV16    zhuzl
-                                        ("B47", IOPin(io.spi_dat(2))),       //AU16    zhuzl
-                                        ("F42", IOPin(io.spi_dat(3))))       //AY14    zhuzl
+    val packagePinsWithPackageIOs = Seq(("AF47", IOPin(io.spi_clk)),          //AV15    zhuzl
+                                        ("AG44", IOPin(io.spi_cs)),           //AY15    zhuzl
+                                        ("AF46", IOPin(io.spi_dat(0))),       //AW15    zhuzl
+                                        ("AD51", IOPin(io.spi_dat(1))),       //AV16    zhuzl
+                                        ("AD50", IOPin(io.spi_dat(2))),       //AU16    zhuzl
+                                        ("AH44", IOPin(io.spi_dat(3))))       //AY14    zhuzl
 
     packagePinsWithPackageIOs foreach { case (pin, io) => {
       shell.xdc.addPackagePin(io, pin)
@@ -109,10 +109,10 @@ class UARTVCU118PlacedOverlay(val shell: VCU118ShellBasicOverlays, name: String,
   extends UARTXilinxPlacedOverlay(name, designInput, shellInput, true)
 {
   shell { InModuleBody {
-    val packagePinsWithPackageIOs = Seq(("D46", IOPin(io.ctsn.get)),    //AY25    zhuzl
-                                        ("D45", IOPin(io.rtsn.get)),   //BB22    zhuzl
-                                        ("C44", IOPin(io.rxd)),        //AW25    zhuzl
-                                        ("C45", IOPin(io.txd)))        //BB21    zhuzl
+    val packagePinsWithPackageIOs = Seq(("", IOPin(io.ctsn.get)),    //AY25    zhuzl  D46
+                                        ("", IOPin(io.rtsn.get)),   //BB22    zhuzl   D45
+                                        ("AE13", IOPin(io.rxd)),        //AW25    zhuzl
+                                        ("AD13", IOPin(io.txd)))        //BB21    zhuzl
 
     packagePinsWithPackageIOs foreach { case (pin, io) => {
       shell.xdc.addPackagePin(io, pin)
@@ -351,18 +351,32 @@ class DDRVCU118PlacedOverlay(val shell: VCU118ShellBasicOverlays, name: String, 
     //   "L20", "G23", "D11", "P17", "K19", "F16", "A19", "N22", "M20", "H24",
     //   "G11", "R18", "K17", "G18", "B18", "P20", "L23", "G22")
 
-      val allddrpins = Seq(  "AC55", "AC53", "AB57", "AB56", "AA56", "AC54", "AC51",    //ADR0-ADR6
-      "V53", "AC50", "W52", "AA54", "Y54", "W53", "V51", "AC56", "V55", "AB54",    //ADR7-ADR16
-      "W56", "W55", "V56", "AA57", "Y49", "W57", "AB52", "AB51", "V54", "AA55", "AA49",    //BG0-BG1  BA0-BA1   RESET_N   ACT_N   CK_C    CK_T    CKE    CS_N   ODT
-      "AA60", "AA59", "Y62", "Y63",  "AB59", "AB58", "AA61",  "AA62",  "W62", "V58",    //DQ0-9
-      "U62", "U61", "W63", "V63", "V59", "U63", "AF60", "AG61", "AE62", "AG58",    //DQ10-19
-      "AF61", "AF59", "AF62", "AG59", "AD62", "AC60", "AC58", "AD61", "AD63", "AC61",    //DQ20-29
-      "AC59", "AD60", "L57", "N58", "N55", "K57", "M58", "M57", "N56", "K58",    //DQ30-39
-      "P56", "T57", "R54", "R55", "T56", "R58", "P55", "R57", "P53", "U52",    //DQ40-49
-      "N51", "T51", "U53", "T52", "P52", "P51", "L52", "K54", "M51", "L51",    //DQ50-59
-      "L54", "J52", "M52", "J51", "Y60", "V61", "AG63", "AB63", "L56", "T55",    //DQ60-63   DQS0-DQS5
-      "N54", "K53", "Y59", "V60", "AG62", "AC63", "M56", "T54", "N53", "K52",    //DQS6-DQS7        DQT0-DQT7
-      "AB61", "W60", "AH58", "AE59", "P57", "U56", "R52", "M53")    //DM_DBI_N_0-DM_DBI_N_7
+      // val allddrpins = Seq(  "AC55", "AC53", "AB57", "AB56", "AA56", "AC54", "AC51",    //ADR0-ADR6
+      // "V53", "AC50", "W52", "AA54", "Y54", "W53", "V51", "AC56", "V55", "AB54",    //ADR7-ADR16
+      // "W56", "W55", "V56", "AA57", "Y49", "W57", "AB52", "AB51", "V54", "AA55", "AA49",    //BG0-BG1  BA0-BA1   RESET_N   ACT_N   CK_C    CK_T    CKE    CS_N   ODT
+      // "AA60", "AA59", "Y62", "Y63",  "AB59", "AB58", "AA61",  "AA62",  "W62", "V58",    //DQ0-9
+      // "U62", "U61", "W63", "V63", "V59", "U63", "AF60", "AG61", "AE62", "AG58",    //DQ10-19
+      // "AF61", "AF59", "AF62", "AG59", "AD62", "AC60", "AC58", "AD61", "AD63", "AC61",    //DQ20-29
+      // "AC59", "AD60", "L57", "N58", "N55", "K57", "M58", "M57", "N56", "K58",    //DQ30-39
+      // "P56", "T57", "R54", "R55", "T56", "R58", "P55", "R57", "P53", "U52",    //DQ40-49
+      // "N51", "T51", "U53", "T52", "P52", "P51", "L52", "K54", "M51", "L51",    //DQ50-59
+      // "L54", "J52", "M52", "J51", "Y60", "V61", "AG63", "AB63", "L56", "T55",    //DQ60-63   DQS0-DQS5
+      // "N54", "K53", "Y59", "V60", "AG62", "AC63", "M56", "T54", "N53", "K52",    //DQS6-DQS7        DQT0-DQT7
+      // "AB61", "W60", "AH58", "AE59", "P57", "U56", "R52", "M53")    //DM_DBI_N_0-DM_DBI_N_7
+
+      //s2c pin zhuzl 20241008
+      val allddrpins = Seq(  "AC46", "Y47", "Y45", "AA46", "W53", "W52", "Y49",    //ADR0-ADR6
+      "AA49", "Y50", "AA47", "AC48", "AA45", "V51", "AC51", "AB46", "AC49", "AC50",    //ADR7-ADR16
+      "W51", "W55", "AB47", "Y54", "Y48", "AB49", "AB52", "AB51", "V53", "W56", "V56",    //BG0-BG1  BA0-BA1   RESET_N   ACT_N   CK_C    CK_T    CKE    CS_N   ODT
+      "AG59", "AF62", "AG61", "AF59", "AG58", "AF61", "AF60", "AE62", "AC55", "AB53",    //DQ0-9
+      "AA57", "AB56", "AB54", "AA56", "AC56", "AB57", "AB59", "AA59", "AA62", "Y62",    //DQ10-19
+      "AA60", "AB58", "AA61", "Y63", "T57", "R55", "P55", "R58", "T56", "P56",    //DQ20-29
+      "R54", "R57", "U63", "W62", "W63", "V59", "V63", "V58", "U61", "U62",    //DQ30-39
+      "N56", "N58", "K57", "L57", "M57", "M58", "N55", "K58", "K54", "J52",    //DQ40-49
+      "J51", "M51", "M52", "L54", "L52", "L51", "P52", "T51", "U53", "U52",    //DQ50-59
+      "P51", "P53", "N51", "T52", "AG63", "AA55", "Y60", "T55", "V61", "L56",    //DQ60-63   DQSC0-DQSC5
+      "K53", "N54", "AG62", "AA54", "Y59", "T54", "V60", "M56", "K52", "N53",    //DQSC6-DQSC7        DQT0-DQT7
+      "AH58", "AC53", "AB61", "U56", "W60", "P57", "M53", "R52")    //DM_DBI_N_0-DM_DBI_N_7
 
     (IOPin.of(io) zip allddrpins) foreach { case (io, pin) => shell.xdc.addPackagePin(io, pin) }
   } }
